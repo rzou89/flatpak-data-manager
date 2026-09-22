@@ -41,8 +41,13 @@ echo "OK: Flatpak"
 if not type -q inotifywait
     echo "ERROR: inotifywait is not installed."
     echo ""
-    echo "Install it with:"
-    echo "  sudo pacman -S inotify-tools"
+    echo "Please install the 'inotify-tools' package using your distribution's"
+    echo "package manager, then run this installer again."
+    echo ""
+    echo "Examples:"
+    echo "  Arch/CachyOS: sudo pacman -S inotify-tools"
+    echo "  Debian/Ubuntu: sudo apt install inotify-tools"
+    echo "  Fedora: sudo dnf install inotify-tools"
     echo ""
     exit 1
 end

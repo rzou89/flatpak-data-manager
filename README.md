@@ -48,4 +48,4 @@ Copy config/config.fish.example to ~/.config/flatpak-data-manager/config.fish an
 
 ## License
 
-No license specified yet.
+MIT License — see LICENSE.
