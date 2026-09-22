@@ -37,8 +37,11 @@ The installer will:
 2. Ask for the destination folder where Flatpak data should be stored.
 3. Write the config to `~/.config/flatpak-data-manager/config.fish`.
 4. Copy the scripts to `~/.local/bin`.
-5. Install the systemd user service
+5. Install and enable the systemd user service
    `~/.config/systemd/user/flatpak-data-watcher.service`.
+6. Run an initial migration of `~/.var/app` to the destination.
+7. Migrate system Flatpak applications to the custom installation.
+8. Start the watcher service and verify it is running.
 
 ### Uninstall
 
@@ -102,27 +105,27 @@ Removes unused refs from the default system installation.
 
 ### Watch for new Flatpak data
 
-```h
+```fish
 flatpak-data-watcher.fish
 ```
 
 Runs a one-time migration, then watches `~/.var/app` with `inotifywait`
 and migrates new app data as it appears. **This command blocks the terminal**.
 
-### Run the watcher as a systemd user service
+### Manage the watcher service
 
-The installer registers `flatpak-data-watcher.service`. Enable and start it with:
+The installer already enables and starts `flatpak-data-watcher.service`.
+Check its status or logs with:
 
-```h
-systemctl --user daemon-reload
-systemctl --user enable --now flatpak-data-watcher.service
-```
-
-Check its status or logs:
-
-```h
+```fish
 systemctl --user status flatpak-data-watcher.service
 journalctl --user -u flatpak-data-watcher.service -f
+```
+
+To stop or disable it:
+
+```fish
+systemctl --user disable --now flatpak-data-watcher.service
 ```
 
 ## License
