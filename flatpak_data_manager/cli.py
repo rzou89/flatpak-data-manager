@@ -4,7 +4,7 @@ import argparse
 from collections.abc import Sequence
 
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 
 
 def build_parser() -> argparse.ArgumentParser:
