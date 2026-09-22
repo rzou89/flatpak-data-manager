@@ -321,7 +321,7 @@ function show_status
         --columns=application,name,version
 
     echo ""
-    echo "=== DataCachyOS Applications ==="
+    echo "=== $FLATPAK_INSTALLATION Applications ==="
     flatpak --installation="$FLATPAK_INSTALLATION" list \
         --app \
         --columns=application,name,version
