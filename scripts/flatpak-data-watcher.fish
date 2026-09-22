@@ -83,7 +83,7 @@ while true
     end
 
     # Backup tidak perlu diproses
-    if string match -q '*.backup' "$app_id"
+    if string match -q '*.backup*' "$app_id"
         echo "Watcher: SKIP backup: $app_id"
         continue
     end

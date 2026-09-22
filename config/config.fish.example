@@ -1,0 +1,10 @@
+# Copy this file to:
+# ~/.config/flatpak-data-manager/config.fish
+
+# Directory where Flatpak application user data will be stored.
+# Change this to any directory on your data drive.
+set -g FLATPAK_DATA_DIR "$HOME/Flatpak Data"
+
+# Name of the custom Flatpak installation.
+# Change only if your installation uses another name.
+set -g FLATPAK_INSTALLATION "datacachyos"
