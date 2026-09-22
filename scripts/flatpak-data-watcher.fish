@@ -1,6 +1,7 @@
 #!/usr/bin/env fish
 
 set SOURCE "$HOME/.var/app"
+set CORE_SOURCE "/var/lib/flatpak"
 set CONFIG "$HOME/.config/flatpak-data-manager/config.fish"
 set MIGRATOR "$HOME/.local/bin/move-flatpak-data.fish"
 
@@ -38,6 +39,13 @@ if not test -d "$SOURCE"
     exit 1
 end
 
+# Pastikan Flatpak core source tersedia
+if not test -d "$CORE_SOURCE"
+    echo "ERROR: Flatpak core directory does not exist:"
+    echo "$CORE_SOURCE"
+    exit 1
+end
+
 # Pastikan migration script tersedia
 if not test -x "$MIGRATOR"
     echo "ERROR: migration script is missing or not executable:"
@@ -53,24 +61,68 @@ echo ""
 echo "Watcher is now waiting for new Flatpak data..."
 echo ""
 
+function wait_for_core_changes
+    echo "  Waiting for Flatpak installation to finish..."
+
+    while true
+        set before (find "$CORE_SOURCE" -type f -printf "%T@
+" 2>/dev/null | sort -nr | head -1)
+        sleep 2
+        set after (find "$CORE_SOURCE" -type f -printf "%T@
+" 2>/dev/null | sort -nr | head -1)
+
+        if test "$before" = "$after"
+            break
+        end
+    end
+
+    echo "  Flatpak core changes finished."
+end
+
 while true
 
     # Menunggu folder baru langsung di ~/.var/app/
     set event (inotifywait \
+        -r \
         -q \
         -e create \
         -e moved_to \
-        --format '%f' \
-        "$SOURCE")
+        --format '%w|%f' \
+        "$SOURCE" "$CORE_SOURCE")
 
     if test $status -ne 0
-        echo "WARNING: inotifywait stopped. Retrying..."
-        sleep 2
+        sleep 1
         continue
     end
 
-    set app_id "$event"
-    set app_dir "$SOURCE/$app_id"
+    set event_parts (string split '|' "$event")
+    set event_source "$event_parts[1]"
+    set event_name "$event_parts[2]"
+
+    # Perubahan pada core Flatpak
+    if string match -q "$CORE_SOURCE/*" "$event_source"
+        echo ""
+        echo "Watcher detected Flatpak core change:"
+        echo "  $event_name"
+
+        wait_for_core_changes
+
+        echo "  Running core migration..."
+        "$MIGRATOR" --migrate-core
+
+        echo ""
+        echo "Watcher: waiting..."
+        continue
+    end
+
+
+    # Perubahan pada app-data
+    if test "$event_source" = "$SOURCE/"
+        set app_id "$event_name"
+        set app_dir "$SOURCE/$app_id"
+    else
+        continue
+    end
 
     # Hanya proses directory
     if not test -d "$app_dir"
