@@ -226,18 +226,7 @@ function migrate_core
         end
 
         # Find origin
-        set origin_line (
-            flatpak --system info --show-origin "$app_id" 2>/dev/null \
-            | string match -r '^Origin:\s*.+$'
-        )
-
-        set origin ""
-
-        if test (count $origin_line) -gt 0
-            set origin (
-                string replace -r '^Origin:\s*' '' "$origin_line[1]"
-            )
-        end
+        set origin (flatpak --system info --show-origin "$app_id" 2>/dev/null | string trim)
 
         if test -z "$origin"
             echo "ERROR: could not determine origin for $app_id"

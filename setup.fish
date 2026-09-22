@@ -276,6 +276,25 @@ echo "OK: initial migration completed."
 echo ""
 
 # ----------------------------------------
+# Core migration
+# ----------------------------------------
+
+echo "Running Flatpak core migration..."
+echo ""
+
+"$INSTALL_DIR/move-flatpak-data.fish" --migrate-core
+
+if test $status -ne 0
+    echo ""
+    echo "ERROR: Flatpak core migration failed."
+    exit 1
+end
+
+echo ""
+echo "OK: Flatpak core migration completed."
+echo ""
+
+# ----------------------------------------
 # Start watcher
 # ----------------------------------------
 
