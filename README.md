@@ -18,24 +18,38 @@ keeping the standard Flatpak paths through symlinks.
 - Linux
 - Fish shell
 - Flatpak
-- `inotify-tools` (for the watcher)
+- `inotify-tools` (provides `inotifywait`)
+- `systemd` (for the optional watcher service)
 
 ## Installation
 
-No installer is provided. Copy the scripts manually and make them executable:
+Clone the repository and run the installer:
 
 ```fish
-mkdir -p ~/.local/bin
-cp scripts/move-flatpak-data.fish ~/.local/bin/
-cp scripts/flatpak-data-watcher.fish ~/.local/bin/
-chmod +x ~/.local/bin/*.fish
+git clone git@github.com:rzou89/flatpak-data-manager.git
+cd flatpak-data-manager
+./setup.fish
 ```
 
-Ensure `~/.local/bin` is in your `$PATH`.
+The installer will:
+
+1. Check that Fish, Flatpak, `inotifywait`, and `systemctl` are available.
+2. Ask for the destination folder where Flatpak data should be stored.
+3. Write the config to `~/.config/flatpak-data-manager/config.fish`.
+4. Copy the scripts to `~/.local/bin`.
+5. Install the systemd user service
+   `~/.config/systemd/user/flatpak-data-watcher.service`.
+
+### Uninstall
+
+```fish
+./uninstall.fish
+```
 
 ## Configuration
 
-Copy the example config and edit the destination paths:
+The installer writes `~/.config/flatpak-data-manager/config.fish`. To edit it
+manually, copy the example:
 
 ```fish
 mkdir -p ~/.config/flatpak-data-manager
@@ -88,13 +102,28 @@ Removes unused refs from the default system installation.
 
 ### Watch for new Flatpak data
 
-```fish
+```h
 flatpak-data-watcher.fish
 ```
 
 Runs a one-time migration, then watches `~/.var/app` with `inotifywait`
-and migrates new app data as it appears. **This command blocks the terminal**;
-run it in the background, a separate terminal, or as a systemd user service.
+and migrates new app data as it appears. **This command blocks the terminal**.
+
+### Run the watcher as a systemd user service
+
+The installer registers `flatpak-data-watcher.service`. Enable and start it with:
+
+```h
+systemctl --user daemon-reload
+systemctl --user enable --now flatpak-data-watcher.service
+```
+
+Check its status or logs:
+
+```h
+systemctl --user status flatpak-data-watcher.service
+journalctl --user -u flatpak-data-watcher.service -f
+```
 
 ## License
 
